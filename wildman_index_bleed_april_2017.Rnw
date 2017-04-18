@@ -1,0 +1,393 @@
+\documentclass[ignorenonframetext]{beamer}
+\usepackage{fontspec}
+\setmainfont{FreeSerif}
+\setsansfont{FreeSans}
+\setmonofont{FreeMono}
+\usepackage{url}
+\usepackage{fancyhdr}
+\usepackage{graphicx}
+\usepackage[bf]{caption}
+\usepackage{rotating}
+\usepackage{wrapfig}
+\usepackage{fancybox}
+\usepackage{booktabs}
+% \usepackage{multirow}
+\usepackage{acronym}
+\usepackage{qrcode}
+\usepackage[backend=biber,natbib=true,hyperref=true,style=nature]{biblatex}
+\addbibresource{references.bib}
+% \usepackage[nomargin,inline,draft]{fixme}
+% \newcommand{\DLA}[1]{\textcolor{red}{\fxnote{DLA: #1}}}
+% \usepackage[hyperfigures,bookmarks,colorlinks,citecolor=black,filecolor=black,linkcolor=black,urlcolor=black]{hyperref}
+\usepackage{texshade}
+\usepackage{tikz}
+\usepackage{nameref}
+\usepackage{zref-xr,zref-user}
+\renewcommand*{\bibfont}{\tiny}
+
+% The textpos package is necessary to position textblocks at arbitary 
+% places on the page.  Use showboxes option to show outlines of textboxes.
+% \usepackage[absolute]{textpos}
+\usepackage[absolute,overlay]{textpos}
+\usepackage{mathtools,cancel}
+
+\renewcommand{\CancelColor}{\color{red}} %change cancel color to red
+\newenvironment{digression}[1]{\begin{textblock*}{64mm}(0.2\textwidth,0.2\textheight)%
+    \begin{block}{#1}}{%
+\end{block}\end{textblock*}}
+
+
+\usepackage{multirow}
+\usepackage{array}
+
+\mode<presentation>{ 
+  \usetheme{CambridgeUS}
+  \usecolortheme{crane}
+  % http://identitystandards.illinois.edu/graphicstandardsmanual/generalguidelines/colors.html
+  \definecolor{ilboldblue}{HTML}{002058}
+  \definecolor{ilboldorange}{HTML}{E87722}
+  \definecolor{ilblue}{HTML}{606EB2}
+  \definecolor{ilorange}{HTML}{D45D00}
+  \logo{\begin{tikzpicture}% Pale figure
+      {\node[opacity=0.6]{\IfFileExists{figures/uofi_mark.pdf}{\includegraphics[width=2cm,height=1cm,keepaspectratio]{figures/uofi_mark}}{}%
+        };}%
+    \end{tikzpicture}}
+}
+
+\title[SeqSwitch]{Index sequence switching and Read Bleeding}
+\author[Don Armstrong]{Don L. Armstrong}
+\institute[IGB]{Institute for Genomic Biology, Computing Genomes 
+  for Reproductive Health, University of Illinois, Urbana-Champaign}
+
+\begin{document}
+
+<<load.libraries,echo=FALSE,results="hide",warning=FALSE,message=FALSE,error=FALSE,cache=FALSE>>=
+opts_chunk$set(dev="cairo_pdf",out.width="\\textwidth",out.height="0.8\\textheight",out.extra="keepaspectratio")
+#opts_chunk$set(cache=TRUE, autodep=TRUE)
+options(device = function(file, width = 8, height = 7, ...) {
+  cairo_pdf(tempfile(), width = width, height = height, ...)
+})
+options(digits=2)
+library("data.table")
+library("ggplot2")
+library("reshape2")
+library("grid")
+library("xtable")
+
+@ 
+
+\IfFileExists{figures/relevant_xkcd.png}{\frame[plain]{\centering \includegraphics[width=\textwidth,height=0.8\textheight,keepaspectratio]{figures/relevant_xkcd.png}
+
+    \url{https://xkcd.com/1566/}}
+
+\frame[plain]{\titlepage
+%   \begin{center}
+%     Code and slides are here: 
+%     
+%     \qrcode[padding]{http://dla2.us/p/indexbleed2017}
+%     
+%     \url{http://dla2.us/p/indexbleed2017}
+%    \end{center}
+ }
+
+
+\frame[plain]{
+  \begin{center}
+    \includegraphics[width=\textwidth,height=0.8\textheight,keepaspectratio]{index_switching_spread/paper_frontpage}
+    
+    \cite{Sinha.ea2017:IndexSwitchingCausesSpreading-Of-Signal}
+\end{center}
+}
+
+\begin{frame}{The Problem}
+  \begin{columns}
+    \column{0.6\textwidth}
+    \includegraphics[width=\columnwidth,height=0.8\textheight,keepaspectratio]{index_switching_spread/figure_3a}
+    \column{0.4\textwidth}
+    \begin{itemize}
+    \item High expression of \textit{Lgj} in row N703 column S513 has
+      a curious pattern of expression in adjacent wells
+    \end{itemize}    
+  \end{columns}
+\end{frame}
+
+\section{Methods}
+\begin{frame}{Method: Isolation}
+  \begin{columns}
+    \column{0.6\textwidth}
+    \includegraphics[width=\columnwidth,height=0.8\textheight,keepaspectratio]{index_switching_spread/figure_2a}
+    \column{0.4\textwidth}
+    \begin{itemize}
+    \item C57BL/6J mouse hematopoetic stem cells (mHSC) and mouse fetal heart cells (mFSC)
+    \item “Highly purified” single cell sorted into skirted 96 well
+      plates (A) with 4 μL lysis buffer
+    \end{itemize}
+  \end{columns}
+\end{frame}
+
+\begin{frame}{Method: Conversion}
+  \begin{columns}
+    \column{0.6\textwidth}
+    \includegraphics[width=\columnwidth,height=0.8\textheight,keepaspectratio]{index_switching_spread/figure_2b}
+    \column{0.4\textwidth}
+    \begin{itemize}
+    \item Lysate was converted to cDNA and amplified
+    \item Quantified using fragment analyzer (B)
+    \item Normalized to (0.05 ng/μL - 0.16 ng/μL) and consolidated
+    \end{itemize}
+  \end{columns}
+\end{frame}
+
+\begin{frame}{Method: Library prep and cleanup}
+  \begin{columns}
+    \column{0.5\textwidth}
+    \includegraphics[width=\columnwidth,height=0.8\textheight,keepaspectratio]{index_switching_spread/figure_2c}
+    \column{0.5\textwidth}
+    \begin{itemize}
+    \item Normalized to (0.05 ng/μL - 0.16 ng/μL) and consolidated
+    \item Library preparation using nextera XT kit
+    \item Cleaned up and size-selected using AMPure XP beads (excludes
+      ≤ 500bp)
+    \item Sequenced on a HiSeq 4000 or NextSeq 500
+    \item demultiplexed using bcl2fastq, processed with skewer, and
+      mapped using OLego
+    \end{itemize}
+  \end{columns}
+\end{frame}
+
+\begin{frame}{Methods: Size selection of fragments}
+    \includegraphics[width=\columnwidth,height=0.8\textheight,keepaspectratio]{index_switching_spread/figure_S2}
+\end{frame}
+
+\section{Results}
+\subsection{Signal Spreading}
+
+\begin{frame}{Results: Signal spreading}
+  \begin{columns}
+    \column{0.5\textwidth}
+    \includegraphics[width=\columnwidth,height=0.8\textheight,keepaspectratio]{index_switching_spread/figure_3a}
+    \column{0.5\textwidth}
+    \begin{itemize}
+    \item High expression of \textit{Lgj} in row N703 column S513 has
+      a curious pattern of expression in adjacent wells
+    \item Were originally trying to use PCA to identify subpopulations
+      of cells
+    \item Each putative subpopulation mapped back to a single row or
+      column in the plate
+    \end{itemize}    
+  \end{columns}
+\end{frame}
+
+\begin{frame}{Results: Signal spreading}
+  \begin{columns}
+    \column{0.5\textwidth}
+    \includegraphics[width=\columnwidth,height=0.8\textheight,keepaspectratio]{index_switching_spread/figure_3b}
+    \column{0.5\textwidth}
+    \begin{itemize}
+    \item High expression of \textit{Vip} in row N712 column S515
+    \item Cells were randomly placed
+    \item Must be artifact or systemic error
+    \end{itemize}    
+  \end{columns}
+\end{frame}
+
+\begin{frame}{Results: Signal spreading}
+  \begin{columns}
+    \column{0.5\textwidth}
+    \includegraphics[width=\columnwidth,height=0.8\textheight,keepaspectratio]{index_switching_spread/figure_3c}
+    \column{0.5\textwidth}
+    \begin{itemize}
+    \item High expression of \textit{Bmper} in row N718 column S508
+    \item Identification of putative subpopulations were therefore not
+      biologically meaningful
+    \end{itemize}    
+  \end{columns}
+\end{frame}
+
+\subsection{No RNA, still signal}
+
+\begin{frame}{Exp 1 setup}
+  \begin{columns}
+    \column{0.5\textwidth}
+    \includegraphics[width=\columnwidth,height=0.8\textheight,keepaspectratio]{index_switching_spread/figure_4}
+    \column{0.5\textwidth}
+    \begin{itemize}
+    \item No index primers or RNA in 1-12
+    \item No RNA in O24 and P24.
+    \item B are free adapter/primer concentrations
+    \end{itemize}
+  \end{columns}
+\end{frame}
+
+\begin{frame}{Exp 1 results}
+  \begin{columns}
+    \column{0.5\textwidth}
+    \includegraphics[width=\columnwidth,height=0.8\textheight,keepaspectratio]{index_switching_spread/figure_5}
+    \column{0.5\textwidth}
+    \begin{itemize}
+    \item A is mapped reads in linear
+    \item B is mapped reads in log scale
+    \end{itemize}
+  \end{columns}
+\end{frame}
+
+\begin{frame}{Exp 1 results summarized}
+  \begin{columns}
+    \column{0.6\textwidth}
+    \includegraphics[width=\columnwidth,height=0.8\textheight,keepaspectratio]{index_switching_spread/figure_6}
+    \column{0.4\textwidth}
+    \begin{itemize}
+    \item O24 and P24 had 1/10 of the reads of 12-24, even though
+      there was no RNA
+    \item Very little reads assigned to 1-12 where there were no index
+      primers or RNA
+    \item Contaminated reads likely due to free index primers
+    \end{itemize}
+  \end{columns}
+\end{frame}
+
+\subsection{Hypothesis?}
+
+\begin{frame}{Barcode preparation?}
+  \begin{columns}
+    \column{0.5\textwidth}
+    \includegraphics[width=\columnwidth,height=0.8\textheight,keepaspectratio]{index_switching_spread/figure_1}
+    \column{0.5\textwidth}
+    \begin{itemize}
+    \item Library pool with residual free index primers gets mixed
+    \item Free index primer anneals and gets extended to form new library molecule with switched index
+    \item Separates from template and seeds a nanowell on the flow
+      cell to generate a cluster
+    \end{itemize}
+  \end{columns}
+\end{frame} 
+
+\subsection{Tritrate in free index primers}
+
+\begin{frame}{Exp 2 setup}
+  \begin{columns}
+    \column{0.5\textwidth}
+    \includegraphics[width=\columnwidth,height=0.8\textheight,keepaspectratio]{index_switching_spread/figure_7}
+    \column{0.5\textwidth}
+    \begin{itemize}
+    \item No RNA in 1-12 or O24 and P24
+    \item Index primers added to 1, 3
+    \item Index primers added to 1 (300 nM), 3 (10 nM) , 5 (1 nM)
+    \end{itemize}
+  \end{columns}
+\end{frame}
+
+\begin{frame}{Exp 2 results}
+  \begin{columns}
+    \column{0.5\textwidth}
+    \includegraphics[width=\columnwidth,height=0.8\textheight,keepaspectratio]{index_switching_spread/figure_8}
+    \column{0.5\textwidth}
+    \begin{itemize}
+    \item False signals only in columns (1,3) where index primers were added
+    \end{itemize}
+  \end{columns}
+\end{frame}
+
+\begin{frame}{Exp 2 results on NextSeq 500}
+  \begin{columns}
+    \column{0.5\textwidth}
+    \includegraphics[width=\columnwidth,height=0.8\textheight,keepaspectratio]{index_switching_spread/figure_9}
+    \column{0.5\textwidth}
+    \begin{itemize}
+    \item When run on NextSeq 500 significantly fewer redas mapping to
+      wells in columns 1 and 3
+    \end{itemize}
+  \end{columns}
+\end{frame}
+
+\begin{frame}{Exp 2 results on different HiSeq 4000}
+  \begin{columns}
+    \column{0.5\textwidth}
+    \includegraphics[width=\columnwidth,height=0.8\textheight,keepaspectratio]{index_switching_spread/figure_10}
+    \column{0.5\textwidth}
+    \begin{itemize}
+    \item Index primers added to 1 (300 nM), 3 (10 nM) , 5 (1 nM)
+    \item Reads assigned were directly proportional to the amount of
+      spiked in primer
+    \end{itemize}
+  \end{columns}
+\end{frame}
+
+\begin{frame}{Exp 2 results on Quake lab NextSeq 500}
+  \begin{columns}
+    \column{0.5\textwidth}
+    \includegraphics[width=\columnwidth,height=0.8\textheight,keepaspectratio]{index_switching_spread/figure_11}
+    \column{0.5\textwidth}
+    \begin{itemize}
+    \item Index primers added to 1 (300 nM), 3 (10 nM) , 5 (1 nM)
+    \item No large scale index switching
+    \end{itemize}
+  \end{columns}
+\end{frame}
+
+\begin{frame}{Exp 1 results on NextSeq 500}
+  \begin{columns}
+    \column{0.5\textwidth}
+    \includegraphics[width=\columnwidth,height=0.4\textheight,keepaspectratio]{index_switching_spread/figure_12_6}
+    
+    \includegraphics[width=\columnwidth,height=0.4\textheight,keepaspectratio]{index_switching_spread/figure_12_5}
+    \column{0.5\textwidth}
+    \begin{itemize}
+    \item No large scale index switching (top)
+    \item Index switching on HiSeq 4000 (bottom)
+    \end{itemize}
+  \end{columns}
+\end{frame}
+
+\section{Discussion}
+
+\begin{frame}{Summary}
+  \begin{itemize}
+  \item HiSeq 4000 has 5-7\% of reads in each sample may possibly
+    belong to other samples in the library pool
+  \item Since HiSeq 3000 and HiSeq X Ten share the same chemistry, it
+    is possible that index switching is also occurring at a similar
+    rate
+  \item In their original analysis, all of the subpopulations were
+    from signal spreading
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{What caused it?}
+  \begin{itemize}
+  \item Likely the isothermal amplification of library pool molecules,
+    which only allows for a single library switch event, not two.
+  \item Not limited to single-cell; potentially affects all library pools
+  \item Just look for nextera forward and reverse index combinations
+    which should not have reads assigned to them
+  \item Very hard to detect cross-contamination in single index libraries
+  \item The use of PhiX may acquire many of the free index primers,
+    but because PhiX is non-indexed, clusters from PhiX are dark
+  \item People are switching to an indexed PhiX to examine the amount
+    of index switching which is occuring
+  \end{itemize}
+\end{frame}
+
+
+\begin{frame}{What to do about it?}
+  \begin{itemize}
+  \item Avoid barcode sets with overlapping pairs and use paired-end
+    reads
+  \item Developing cleanup approaches which remove free primers, such
+    as uracil-DNA glycosylase or PAGE purification of library pools
+  \item<2-> Give up
+  \end{itemize}
+\end{frame}
+
+
+
+\section*{References}
+
+\begin{frame}[plain]{References}
+  \begin{center}
+    \mbox{}\vspace{-\baselineskip}
+    \printbibliography[heading=none]
+  \end{center}
+\end{frame}
+
+\end{document}
