@@ -2,7 +2,7 @@
 
 This is a quick presentation of the index sequence bleed problem
 identified
-by [Sinha et al.](http://biorxiv.org/content/early/2017/04/09/125724) which was presented during our APril 11th, 2017 lab meeting.
+by [Sinha et al.](http://biorxiv.org/content/early/2017/04/09/125724) which was presented during our April 11th, 2017 lab meeting.
 
 
 # Making the slides
