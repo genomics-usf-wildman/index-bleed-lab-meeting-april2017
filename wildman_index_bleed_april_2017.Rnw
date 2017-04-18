@@ -1,4 +1,4 @@
-\documentclass[ignorenonframetext]{beamer}
+\documentclass[ignorenonframetext,aspectratio=169]{beamer}
 \usepackage{fontspec}
 \setmainfont{FreeSerif}
 \setsansfont{FreeSans}
@@ -14,7 +14,7 @@
 % \usepackage{multirow}
 \usepackage{acronym}
 \usepackage{qrcode}
-\usepackage[backend=biber,natbib=true,hyperref=true,style=nature]{biblatex}
+\usepackage[backend=biber,hyperref=true,style=authoryear-comp,doi=false,url=false,eprint=false]{biblatex}
 \addbibresource{references.bib}
 % \usepackage[nomargin,inline,draft]{fixme}
 % \newcommand{\DLA}[1]{\textcolor{red}{\fxnote{DLA: #1}}}
@@ -24,12 +24,24 @@
 \usepackage{nameref}
 \usepackage{zref-xr,zref-user}
 \renewcommand*{\bibfont}{\tiny}
+\renewcommand*{\bibfont}{\fontsize{6pt}{6pt}\selectfont
+}
+\newrobustcmd*{\footlessfullcite}{\AtNextCite{\renewbibmacro{title}{}\renewbibmacro{in:}{}}\footfullcite}
+\newrobustcmd*{\footlesscitetext}{\AtNextCite{\renewbibmacro{title}{}\renewbibmacro{in:}{}}\footcitetext}
 
 % The textpos package is necessary to position textblocks at arbitary 
 % places on the page.  Use showboxes option to show outlines of textboxes.
 % \usepackage[absolute]{textpos}
 \usepackage[absolute,overlay]{textpos}
 \usepackage{mathtools,cancel}
+
+% default to frame footnotes
+\let\oldfootnote\footnote
+\renewcommand\footnote[1][]{\oldfootnote[frame,#1]}
+
+% include numbered bibliography items
+\setbeamertemplate{bibliography item}{\insertbiblabel}
+
 
 \renewcommand{\CancelColor}{\color{red}} %change cancel color to red
 \newenvironment{digression}[1]{\begin{textblock*}{64mm}(0.2\textwidth,0.2\textheight)%
@@ -42,17 +54,42 @@
 
 \mode<presentation>{ 
   \usetheme{CambridgeUS}
-  \usecolortheme{crane}
   % http://identitystandards.illinois.edu/graphicstandardsmanual/generalguidelines/colors.html
   \definecolor{ilboldblue}{HTML}{002058}
   \definecolor{ilboldorange}{HTML}{E87722}
   \definecolor{ilblue}{HTML}{606EB2}
   \definecolor{ilorange}{HTML}{D45D00}
+  \setbeamercolor{alerted text}{fg=ilboldorange}
+  \setbeamercolor*{palette primary}{fg=ilblue,bg=ilorange}
+  \setbeamercolor*{palette secondary}{fg=ilblue!20!white,bg=ilorange}
+  \setbeamercolor*{palette tertiary}{bg=ilblue,fg=ilorange}
+  \setbeamercolor*{palette quaternary}{fg=ilblue,bg=ilorange}
+  
+  \setbeamercolor*{sidebar}{fg=ilorange,bg=ilboldblue}
+  
+  \setbeamercolor*{palette sidebar primary}{fg=ilblue!10!white,bg=ilorange}
+  \setbeamercolor*{palette sidebar secondary}{fg=ilorange}
+  \setbeamercolor*{palette sidebar tertiary}{fg=ilblue}
+  \setbeamercolor*{palette sidebar quaternary}{fg=ilorange}
+  
+  % \setbeamercolor*{titlelike}{parent=palette primary}
+  \setbeamercolor{titlelike}{parent=palette primary,fg=ilboldblue,bg=ilorange}
+  \setbeamercolor{frametitle}{fg=ilboldorange!10!white,bg=ilblue!80!white}
+  \setbeamercolor{frametitle right}{fg=ilboldblue,bg=ilorange}
+  \setbeamercolor{block body}{bg=ilblue!10!white}
+  \setbeamercolor{block title}{bg=ilorange!10!white}
+  \setbeamertemplate{blocks}[rounded][shadow=false]
+  \setbeamercolor*{separation line}{}
+  \setbeamercolor*{fine separation line}{}
+  \setbeamercovered{transparent}  
   \logo{\begin{tikzpicture}% Pale figure
-      {\node[opacity=0.6]{\IfFileExists{figures/uofi_mark.pdf}{\includegraphics[width=2cm,height=1cm,keepaspectratio]{figures/uofi_mark}}{}%
+      {\node[opacity=0.5]{\IfFileExists{figures/igb_wordmark.pdf}{\includegraphics[width=2cm,height=0.5cm,keepaspectratio]{figures/igb_wordmark}}{}%
         };}%
     \end{tikzpicture}}
 }
+
+% remove navigation symbols
+\setbeamertemplate{navigation symbols}{}
 
 \title[SeqSwitch]{Index sequence switching and Read Bleeding}
 \author[Don Armstrong]{Don L. Armstrong}
@@ -95,7 +132,7 @@ library("xtable")
   \begin{center}
     \includegraphics[width=\textwidth,height=0.8\textheight,keepaspectratio]{index_switching_spread/paper_frontpage}
     
-    \cite{Sinha.ea2017:IndexSwitchingCausesSpreading-Of-Signal}
+    \footlessfullcite{Sinha.ea2017:IndexSwitchingCausesSpreading-Of-Signal}
 \end{center}
 }
 
