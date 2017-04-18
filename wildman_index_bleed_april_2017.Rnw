@@ -81,13 +81,13 @@ library("xtable")
     \url{https://xkcd.com/1566/}}
 
 \frame[plain]{\titlepage
-%   \begin{center}
-%     Code and slides are here: 
-%     
-%     \qrcode[padding]{http://dla2.us/p/indexbleed2017}
-%     
-%     \url{http://dla2.us/p/indexbleed2017}
-%    \end{center}
+  \begin{center}
+    Code and slides are here: 
+    
+    \qrcode[padding]{https://github.com/uiuc-cgm/index-bleed-lab-meeting-april2017}
+    
+    \url{https://github.com/uiuc-cgm/index-bleed-lab-meeting-april2017}
+  \end{center}
  }
 
 
